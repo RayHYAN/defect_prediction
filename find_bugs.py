@@ -8,7 +8,6 @@ Identify bugfixes in ml tool repository
 import json
 import re
 import argparse
-import json
 
 
 def find_bug(dic_issues, dic_log, pattern):
@@ -29,13 +28,12 @@ def find_bug(dic_issues, dic_log, pattern):
         issue_list[issue['number']]['closeddate'] = res_date
     
     for issue in issue_list:
+        nbr = issue
         matches = []
         for commit in dic_log:
-            pat = pattern.format()
-            if re.search(pat, commit):
-                if re.search("DOC|TST", commit): # documents | test
-                    pass
-                else:
+            pat = pattern.format(nbr=nbr)
+            if re.search(pat, commit) and re.search("[Ff][Ii][Xx]|[Bb][Uu][Gg]", commit):
+                if not re.search("DOC|TST|EXA", commit):  # documentation | test | example
                     matches.append(commit)
         total_matches += len(matches)
         matches_per_issue[issue] = len(matches)
@@ -68,7 +66,7 @@ def find_bug(dic_issues, dic_log, pattern):
     for key in no_matches:
         issue_list.pop(key)
 
-    return issue_list
+    return issue_list, matches_per_issue
 
 
 def commit_selector_heuristic(commits):
@@ -77,7 +75,7 @@ def commit_selector_heuristic(commits):
     Given said order, pick first commit that does not match the pattern.
     If all commits match, return newest one. """
     for commit in commits:
-        if not re.search('MRG|ENH', commit): # merge | enhancement
+        if not re.search('MRG', commit): # merge
             return commit
     return commits[0]
 
@@ -94,8 +92,8 @@ if __name__ == '__main__':
     con_log = f_log.read().replace('\n', '').replace('\r', '')
     dic_log = json.loads(con_log, strict=False)
     
-    pattern = 'FIX|BUG'
-    issue_list = find_bug(dic_issues, dic_log, pattern)
+    pattern = '\(#{nbr}\)'
+    issue_list, matches_per_issue = find_bug(dic_issues, dic_log, pattern)
     
     """ save bug fix issue list """
     with open('./' + mltool_name + '/' + mltool_name + '_bug_fix_list.json', 'w') as f:
