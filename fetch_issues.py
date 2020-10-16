@@ -43,6 +43,7 @@ def getAllIssues(url):
         missed_pages = all_pages[:]
         print("\nAnother round!\n")
             
+    dic_issues.sort(key=lambda x:x['number'])
     return dic_issues, missed_pages
 
 

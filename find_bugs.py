@@ -7,7 +7,6 @@ Identify bugfixes in ml tool repository
 
 import json
 import re
-import argparse
 
 
 def find_bug(dic_issues, dic_log, pattern):
@@ -24,16 +23,16 @@ def find_bug(dic_issues, dic_log, pattern):
         created_date = issue['created_at'].replace('T', ' ').replace('Z', '')
         issue_list[issue['number']]['creationdate'] = created_date
 
-        res_date = issue['closed_at'].replace('T', ' ').replace('Z', '')
-        issue_list[issue['number']]['closeddate'] = res_date
-    
+        closed_date = issue['closed_at'].replace('T', ' ').replace('Z', '')
+        issue_list[issue['number']]['closeddate'] = closed_date
+        
     for issue in issue_list:
         nbr = issue
         matches = []
         for commit in dic_log:
-            pat = pattern.format(nbr=nbr)
-            if re.search(pat, commit) and re.search("[Ff][Ii][Xx]|[Bb][Uu][Gg]", commit):
-                if not re.search("DOC|TST|EXA", commit):  # documentation | test | example
+            pat = pattern.format(nbr=nbr) # 单写一个函数
+            if re.search(pat, commit):
+                if commit_filter(commit):                   
                     matches.append(commit)
         total_matches += len(matches)
         matches_per_issue[issue] = len(matches)
@@ -69,6 +68,25 @@ def find_bug(dic_issues, dic_log, pattern):
     return issue_list, matches_per_issue
 
 
+def commit_filter(commit):
+    """ Pick out bug-fixing commit.
+    If the commit only have one line, check whether it has a key word (FIX|BUG).
+    If not, check every update in this commit.
+    """
+    pat_fix = "[Ff][Ii][Xx]|[Bb][Uu][Gg]"
+    pat_other_files = "DOC|TST|EXA|\.rst" # documentation | test | example | .rst
+    
+    if not re.search("\*", commit):
+        if re.search(pat_fix, commit) and not re.search(pat_other_files, commit):
+            return True
+    else:
+        commit = commit.split("*")
+        for update in commit:
+            if re.search(pat_fix, update) and not re.search(pat_other_files, update):
+                return True
+    return False     
+    
+    
 def commit_selector_heuristic(commits):
     """ Helper method for find_bug_fixes.
     Commits are assumed to be ordered in reverse chronological order.
@@ -84,7 +102,7 @@ if __name__ == '__main__':
     mltool_name = 'sklearn'
     
     """ open files by ml tool name """
-    f_issues = open('./' + mltool_name + '/' + mltool_name + '_issues.json', 'r', encoding='utf-8')
+    f_issues = open('./' + mltool_name + '/' + mltool_name + '_all_issues.json', 'r', encoding='utf-8')
     con_issues = f_issues.read().replace('\n', '').replace('\r', '')
     dic_issues = json.loads(con_issues, strict=False)
     
