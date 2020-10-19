@@ -30,7 +30,7 @@ def find_bug(dic_issues, dic_log, pattern):
         nbr = issue
         matches = []
         for commit in dic_log:
-            pat = pattern.format(nbr=nbr) # 单写一个函数
+            pat = pattern.format(nbr=nbr)
             if re.search(pat, commit):
                 if commit_filter(commit):                   
                     matches.append(commit)
