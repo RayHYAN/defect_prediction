@@ -20,11 +20,11 @@ def find_bug(dic_issues, dic_log, pattern):
     for issue in dic_issues:
         issue_list[issue['number']] = {}
 
-        created_date = issue['created_at'].replace('T', ' ').replace('Z', '')
+        created_date = issue['created_at'].replace('T', ' ').replace('Z', '') + " +0000"
         issue_list[issue['number']]['creationdate'] = created_date
 
-        closed_date = issue['closed_at'].replace('T', ' ').replace('Z', '')
-        issue_list[issue['number']]['closeddate'] = closed_date
+        closed_date = issue['closed_at'].replace('T', ' ').replace('Z', '') + " +0000"
+        issue_list[issue['number']]['resolutiondate'] = closed_date
         
     for issue in issue_list:
         nbr = issue

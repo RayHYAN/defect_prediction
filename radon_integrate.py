@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from radon.raw import analyze
 import json
-import operator
-import pandas as pd
 
 def open_json_files(mltool_name):
     dic_radon = {}

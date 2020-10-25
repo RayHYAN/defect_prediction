@@ -18,9 +18,8 @@ def getHTML(url):
         return "Wrong!"
     
 
-def getAllIssues(url):
-    issues_number = 18620
-    last_page = int(issues_number / 100 + 1)
+def getAllIssues(url, total_issue):
+    last_page = int(total_issue / 100 + 1)
     dic_issues = []
     all_pages = []
     missed_pages = []
@@ -48,6 +47,8 @@ def getAllIssues(url):
 
 
 if __name__ == "__main__":
-#    urlIssues = "https://api.github.com/repos/scikit-learn/scikit-learn/issues?per_page=100&state=closed&labels=bug"
-    urlIssues = "https://api.github.com/repos/scikit-learn/scikit-learn/issues?per_page=100&state=closed"
-    issues, missed = getAllIssues(urlIssues)
+    urlSK = "https://api.github.com/repos/scikit-learn/scikit-learn/issues?per_page=100&state=closed"
+    urlTF = "https://api.github.com/repos/tensorflow/tensorflow/issues?per_page=100&state=closed"
+    total_issue = 18620
+    issues, missed = getAllIssues(urlSK, total_issue)
+    
